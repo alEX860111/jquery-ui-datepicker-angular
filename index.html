@@ -17,6 +17,8 @@
 				template: "<input type='text' id='datepicker' ng-model='dateString'>",
 				link: function(scope, element, attrs) {
 					element.children("#datepicker").datepicker({
+						changeMonth: true,
+						changeYear: true,
 						dateFormat: "dd.mm.yy",
 					    onSelect: function(dateString) {
 							scope.dateString = dateString;
@@ -39,14 +41,14 @@
 			  };
 			})
 			.controller("myctrl", ["$scope", function($scope) {
-				$scope.msg = "hello world";
+				$scope.date1 = "";
 			}]);
 		</script>
 	</head>
 	<body>
 	<div ng-app="myapp">
-		<div ng-controller="myctrl">{{msg}}
-			<div datepicker date="msg" init-date="01.01.2019"></div>
+		<div ng-controller="myctrl">{{date1}}
+			<div datepicker date="date1" init-date="01.01.2019"></div>
 		</div>
 	</div>
 	</body>
