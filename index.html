@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+		<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+		<script src="https://code.angularjs.org/1.4.5/angular.min.js"></script>
+		<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+		<script>
+			angular.module("myapp", [])
+
+			.directive("datepicker", function() {
+			  return {
+				restrict: "A",
+				 scope: {
+					 date: "=date",
+					 dateString: "@initDate"
+				},
+				template: "<input type='text' id='datepicker' ng-model='dateString'>",
+				link: function(scope, element, attrs) {
+					element.children("#datepicker").datepicker({
+						dateFormat: "dd.mm.yy",
+					    onSelect: function(dateString) {
+							scope.dateString = dateString;
+							scope.$apply();
+						}
+					});
+				},
+				controller: function($scope) {
+					$scope.$watch("dateString", function() {
+						console.log($scope.dateString);
+						var match;
+						if ($scope.dateString) {
+							match = $scope.dateString.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+						}
+						if (match) {
+							$scope.date = match[3]+"-"+match[2]+"-"+match[1] + "T00:00:00.000Z";
+						}
+					});
+				}
+			  };
+			})
+			.controller("myctrl", ["$scope", function($scope) {
+				$scope.msg = "hello world";
+			}]);
+		</script>
+	</head>
+	<body>
+	<div ng-app="myapp">
+		<div ng-controller="myctrl">{{msg}}
+			<div datepicker date="msg" init-date="01.01.2019"></div>
+		</div>
+	</div>
+	</body>
+</html>
