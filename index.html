@@ -14,7 +14,7 @@
 					 date: "=date",
 					 dateString: "@initDate"
 				},
-				template: "<input type='text' class='datepicker' ng-model='dateString'>",
+				template: "<input type='text' class='datepicker' ng-model='dateString' ng-class='{\"invalid\": !valid}'>",
 				link: function(scope, element, attrs) {
 					element.children(".datepicker").datepicker({
 						changeMonth: true,
@@ -27,6 +27,7 @@
 					});
 				},
 				controller: function($scope) {
+					$scope.valid;
 					$scope.$watch("dateString", function() {
 						console.log($scope.dateString);
 						var match;
@@ -34,7 +35,10 @@
 							match = $scope.dateString.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
 						}
 						if (match) {
+							$scope.valid = true;
 							$scope.date = match[3]+"-"+match[2]+"-"+match[1] + "T00:00:00.000Z";
+						} else {
+							$scope.valid = false;
 						}
 					});
 				}
@@ -45,6 +49,9 @@
 				$scope.date2 = "";
 			}]);
 		</script>
+		<style>
+			.invalid { border: 1px solid red;}
+		</style>
 	</head>
 	<body>
 	<div ng-app="myapp">
