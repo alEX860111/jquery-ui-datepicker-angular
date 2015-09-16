@@ -14,9 +14,9 @@
 					 date: "=date",
 					 dateString: "@initDate"
 				},
-				template: "<input type='text' id='datepicker' ng-model='dateString'>",
+				template: "<input type='text' class='datepicker' ng-model='dateString'>",
 				link: function(scope, element, attrs) {
-					element.children("#datepicker").datepicker({
+					element.children(".datepicker").datepicker({
 						changeMonth: true,
 						changeYear: true,
 						dateFormat: "dd.mm.yy",
@@ -42,13 +42,15 @@
 			})
 			.controller("myctrl", ["$scope", function($scope) {
 				$scope.date1 = "";
+				$scope.date2 = "";
 			}]);
 		</script>
 	</head>
 	<body>
 	<div ng-app="myapp">
-		<div ng-controller="myctrl">{{date1}}
-			<div datepicker date="date1" init-date="01.01.2019"></div>
+		<div ng-controller="myctrl">
+			{{date1}}<div datepicker date="date1" init-date="01.01.2019"></div>
+			{{date2}}<div datepicker date="date2" init-date="01.01.2031"></div>
 		</div>
 	</div>
 	</body>
