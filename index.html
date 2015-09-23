@@ -29,16 +29,11 @@
 				controller: function($scope) {
 					$scope.valid;
 					$scope.$watch("dateString", function() {
-						console.log($scope.dateString);
-						var match;
-						if ($scope.dateString) {
-							match = $scope.dateString.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-						}
-						if (match) {
-							$scope.valid = true;
-							$scope.date = match[3]+"-"+match[2]+"-"+match[1] + "T00:00:00.000Z";
-						} else {
-							$scope.valid = false;
+						try {
+							var date = $.datepicker.parseDate("dd.mm.yy", $scope.dateString);
+							$scope.date = $.datepicker.formatDate('yy-mm-dd', date)+"T00:00:00.000Z"
+						} catch(e) {
+							console.log("invalid");
 						}
 					});
 				}
