@@ -9,25 +9,47 @@
 
 			.directive("datepicker", function() {
 			  return {
-				restrict: "A",
-				require: "ngModel",
+				restrict: "E",
+				replace: true,
+				scope: {
+					date: "=",
+					defaultdate: "="
+				},
+				template: "<input type='text' ng-model='dateText' ng-class='{\"invalid\": !valid}'/>",
 				link: function (scope, elem, attrs, ngModelCtrl) {
-				  var updateModel = function (dateText) {
-					scope.$apply(function () {
-					  ngModelCtrl.$setViewValue(dateText);
+					elem.datepicker({
+						dateFormat: scope.format,
+						defaultDate: scope.defaultdate,
+						onSelect: function (dateText, inst) {
+							scope.dateText = dateText;
+							scope.$apply();
+						}
 					});
-				  };
-				  var options = {
-					dateFormat: "dd.mm.yy",
-					onSelect: function (dateText) {
-					  updateModel(dateText);
-					}
-				  };
-				  elem.datepicker(options);
+				},
+				controller: function($scope, dateFilter) {
+					$scope.valid = true;
+					$scope.format = "dd.mm.yy";
+					$scope.dateText = $.datepicker.formatDate($scope.format, $scope.defaultdate);
+					
+					$scope.$watch("dateText", function() {
+						try {
+							var date = $.datepicker.parseDate($scope.format, $scope.dateText);
+							$scope.date = $.datepicker.formatDate("yy-mm-dd", date) + "T00:00:00.000Z";
+							$scope.valid = true;
+						} catch (e) {
+							$scope.valid = false;
+							$scope.date = undefined;
+							console.log(e);
+						}
+					});
 				}
 			  };
 			})
 			.controller("myctrl", ["$scope", function($scope) {
+				$scope.dd1 = new Date();
+				$scope.dd1.setFullYear(2014);
+				$scope.dd2 = new Date();
+				$scope.dd2.setFullYear(2013);
 			}]);
 		</script>
 		<style>
@@ -37,10 +59,10 @@
 	<body>
 	<div ng-app="myapp">
 		<div ng-controller="myctrl">
-			<p>{{datePicker || "00.00.0000"}}</p>
-			<input type="text" ng-model="datePicker" datepicker />
-			<p>{{datePicker2 || "00.00.0000"}}</p>
-			<input type="text" ng-model="datePicker2" datepicker />
+			<p>{{date1}}</p>
+			<datepicker date="date1" defaultdate="dd1" ></datepicker>
+			<p>{{date2}}</p>
+			<datepicker date="date2" defaultdate="dd2"></datepicker>
 		</div>
 	</div>
 	</body>
