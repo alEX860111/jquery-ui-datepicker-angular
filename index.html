@@ -12,13 +12,22 @@
 			  return {
 				restrict: "E",
 				replace: true,
-				require: '?ngModel',
 				scope: {
-					date: "="
+					date: "=",
+					mindate: "=",
+					maxdate: "="
 				},
-				template: "<input type='date' ng-model='date'/>",
-				link: function (scope, elem, attrs, ngModelCtrl) {
-					elem.attr("type", "text");
+				template: "<div><input type='text' ng-model='date'/><span ng-show='!valid'>Bitte geben Sie ein Datum zwischen dem {{mindate | date}} und dem {{maxdate | date}} ein.</span></span></div>",
+				link: function (scope, elem, attrs) {
+					var inputelem = elem.children("input");
+					var ngModelCtrl = inputelem.data('$ngModelController');
+					ngModelCtrl.$validators.date = function(modelValue) {
+						var lteMaxDate = angular.isDate(scope.maxdate) ? (modelValue <= scope.maxdate) : true;
+						var gteMinDate = angular.isDate(scope.mindate) ? (modelValue >= scope.mindate) : true;
+						var valid = lteMaxDate && gteMinDate;
+						scope.valid = valid;
+						return valid;
+					};
 					ngModelCtrl.$parsers = [function(value) {
 						try {
 							var date = $.datepicker.parseDate(scope.format, value);
@@ -30,7 +39,9 @@
 					ngModelCtrl.$formatters = [function(value) {
 						return $.datepicker.formatDate(scope.format, value);
 					}];
-					elem.datepicker({
+					inputelem.datepicker({
+						minDate: scope.mindate,
+						maxDate: scope.maxdate,
 						dateFormat: scope.format,
 						onSelect: function (dateText, inst) {
 							ngModelCtrl.$setViewValue(dateText);
@@ -39,29 +50,35 @@
 				},
 				controller: function($scope) {
 					$scope.correctDate = function(date) {
-						var correctedDate = new Date(date);
-						correctedDate.setMinutes(correctedDate.getMinutes() - correctedDate.getTimezoneOffset());
-						return correctedDate;
+						if (date) {
+							var correctedDate = new Date(date);
+							correctedDate.setMinutes(correctedDate.getMinutes() - correctedDate.getTimezoneOffset());
+							return correctedDate;
+						}
 					};
 					$scope.date = $scope.correctDate($scope.date);
+					$scope.mindate = $scope.correctDate($scope.mindate);
+					$scope.maxdate = $scope.correctDate($scope.maxdate);
 					$scope.format = "dd.mm.yy";
 				}
 			  };
 			})
 			.controller("myctrl", ["$scope", function($scope) {
-				$scope.date1 = new Date(2014, 0, 1);
-				$scope.date2 = new Date(2015, 0, 1);
+				$scope.date1 = new Date(2014, 0, 10);
+				$scope.mindate1 = new Date(2014, 0, 5);
+				$scope.maxdate1 = new Date(2014, 0, 15);
+				$scope.date2 = new Date(2020, 0, 1);
 			}]);
 		</script>
 		<style>
-			.ng-invalid-date { border: 1px solid red;}
+			.ng-invalid { border: 1px solid red;}
 		</style>
 	</head>
 	<body>
 	<div ng-app="myapp">
 		<div ng-controller="myctrl">
 			<p>{{date1}}</p>
-			<datepicker date="date1"></datepicker>
+			<datepicker date="date1" mindate="mindate1" maxdate="maxdate1"></datepicker>
 			<p>{{date2}}</p>
 			<datepicker date="date2"></datepicker>
 		</div>
