@@ -17,23 +17,28 @@
 					mindate: "=",
 					maxdate: "="
 				},
-				template: "<div><input type='text' ng-model='date'/><span ng-show='!valid'>Bitte geben Sie ein Datum zwischen dem {{mindate | date}} und dem {{maxdate | date}} ein.</span></span></div>",
+				template: "<div class='form-group'><div class='input-group'><input type='text' class='form-control' ng-model='date' /><span class='input-group-btn'><button type='button' class='btn btn-default' ng-click='show()'>&nbsp;<i class='glyphicon glyphicon-calendar'></i>&nbsp;</button></span></div><span class='error' ng-show='invalidRange'>Bitte geben Sie ein Datum zwischen dem {{mindate | date}} und dem {{maxdate | date}} ein.</span><span class='error' ng-show='!validFormat'>Bitte geben Sie ein Datum im Format 'dd.mm.jjjj' ein.</span></div>",
 				link: function (scope, elem, attrs) {
-					var inputelem = elem.children("input");
+					var inputelem = elem.find("input");
 					var ngModelCtrl = inputelem.data('$ngModelController');
 					ngModelCtrl.$validators.date = function(modelValue) {
 						var lteMaxDate = angular.isDate(scope.maxdate) ? (modelValue <= scope.maxdate) : true;
 						var gteMinDate = angular.isDate(scope.mindate) ? (modelValue >= scope.mindate) : true;
 						var valid = lteMaxDate && gteMinDate;
-						scope.valid = valid;
+						scope.invalidRange = !valid;
 						return valid;
 					};
 					ngModelCtrl.$parsers = [function(value) {
 						try {
 							var date = $.datepicker.parseDate(scope.format, value);
-							return scope.correctDate(date);
+							var correctedDate = scope.correctDate(date);
+							scope.validFormat = true;
+							return correctedDate;
+
 						} catch (e) {
 							console.log(e);
+							scope.validFormat = false;
+							scope.invalidRange = false;
 						}
 					}];
 					ngModelCtrl.$formatters = [function(value) {
@@ -47,6 +52,9 @@
 							ngModelCtrl.$setViewValue(dateText);
 						}
 					});
+					scope.show = function() {
+						inputelem.datepicker("show");
+					};
 				},
 				controller: function($scope) {
 					$scope.correctDate = function(date) {
@@ -56,6 +64,7 @@
 							return correctedDate;
 						}
 					};
+					$scope.validFormat = true;
 					$scope.date = $scope.correctDate($scope.date);
 					$scope.mindate = $scope.correctDate($scope.mindate);
 					$scope.maxdate = $scope.correctDate($scope.maxdate);
@@ -71,7 +80,9 @@
 			}]);
 		</script>
 		<style>
+			@import url("http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css");
 			.ng-invalid { border: 1px solid red;}
+			.error { color: red; }
 		</style>
 	</head>
 	<body>
