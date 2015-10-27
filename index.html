@@ -17,7 +17,7 @@
 					mindate: "=",
 					maxdate: "="
 				},
-				template: "<div class='form-group'><div class='input-group'><input type='text' class='form-control' ng-model='date' /><span class='input-group-btn'><button type='button' class='btn btn-default' ng-click='show()'>&nbsp;<i class='glyphicon glyphicon-calendar'></i>&nbsp;</button></span></div><span class='error' ng-show='invalidRange'>Bitte geben Sie ein Datum zwischen dem {{mindate | date}} und dem {{maxdate | date}} ein.</span><span class='error' ng-show='!validFormat'>Bitte geben Sie ein Datum im Format 'dd.mm.jjjj' ein.</span></div>",
+				template: "<div class='form-group'><div class='input-group'><input type='text' class='form-control' ng-model='date' /><span class='input-group-btn'><button type='button' class='btn btn-default' ng-click='show()'>&nbsp;<i class='glyphicon glyphicon-calendar'></i>&nbsp;</button></span></div><div class='alert alert-danger' ng-show='!validRange'>Bitte geben Sie ein Datum zwischen dem {{mindate | date}} und dem {{maxdate | date}} ein.</div><div class='alert alert-danger' ng-show='!validFormat'>Bitte geben Sie ein Datum im Format 'dd.mm.jjjj' ein.</div></div>",
 				link: function (scope, elem, attrs) {
 					var inputelem = elem.find("input");
 					var ngModelCtrl = inputelem.data('$ngModelController');
@@ -25,7 +25,7 @@
 						var lteMaxDate = angular.isDate(scope.maxdate) ? (modelValue <= scope.maxdate) : true;
 						var gteMinDate = angular.isDate(scope.mindate) ? (modelValue >= scope.mindate) : true;
 						var valid = lteMaxDate && gteMinDate;
-						scope.invalidRange = !valid;
+						scope.validRange = valid;
 						return valid;
 					};
 					ngModelCtrl.$parsers = [function(value) {
@@ -36,9 +36,8 @@
 							return correctedDate;
 
 						} catch (e) {
-							console.log(e);
 							scope.validFormat = false;
-							scope.invalidRange = false;
+							scope.validRange = true;
 						}
 					}];
 					ngModelCtrl.$formatters = [function(value) {
@@ -47,7 +46,20 @@
 					inputelem.datepicker({
 						minDate: scope.mindate,
 						maxDate: scope.maxdate,
+						changeMonth: true,
+						changeYear: true,
 						dateFormat: scope.format,
+						closeText: "Schließen",
+						prevText: "Zurück",
+						nextText: "Vor",
+						currentText: "Heute",
+						monthNames: [ "Januar","Februar","März","April","Mai","Juni", "Juli","August","September","Oktober","November","Dezember" ],
+						monthNamesShort: [ "Jan","Feb","Mär","Apr","Mai","Jun", "Jul","Aug","Sep","Okt","Nov","Dez" ],
+						dayNames: [ "Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag" ],
+						dayNamesShort: [ "So","Mo","Di","Mi","Do","Fr","Sa" ],
+						dayNamesMin: [ "So","Mo","Di","Mi","Do","Fr","Sa" ],
+						weekHeader: "KW",
+						firstDay: 1,
 						onSelect: function (dateText, inst) {
 							ngModelCtrl.$setViewValue(dateText);
 						}
@@ -81,8 +93,7 @@
 		</script>
 		<style>
 			@import url("http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css");
-			.ng-invalid { border: 1px solid red;}
-			.error { color: red; }
+			.ng-invalid { border: 1px solid #b94a48;}
 		</style>
 	</head>
 	<body>
